@@ -8,12 +8,37 @@ datasource db {
 }
 
 model Usuario {
-  id           String   @id @default(uuid())
+  id           String    @id @default(uuid())
   nome         String
-  email        String   @unique
+  email        String    @unique
   senha        String
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  especies     Especie[]
 
   @@map("usuarios")
 }
+
+model Especie {
+  id             String    @id @default(uuid())
+  nomeComum      String    @map("nome_comum")
+  nomeCientifico String    @map("nome_cientifico")
+  categoria      String
+  latitude       Float
+  longitude      Float
+  dataRegistro   DateTime  @default(now()) @map("data_registro")
+  usuarioId      String    @map("usuario_id")
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id])
+
+  // campos preenchidos pela integracao com Open-Meteo 
+  temperaturaAtual   Float?    @map("temperatura_atual")
+  umidadeAtual       Float?    @map("umidade_atual")
+  descricaoClima     String?   @map("descricao_clima")
+  climaAtualizadoEm  DateTime? @map("clima_atualizado_em")
+
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+
+  @@map("especies")
+}
+
