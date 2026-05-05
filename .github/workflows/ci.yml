@@ -29,4 +29,8 @@ jobs:
         run: npm run lint
 
       - name: Rodar testes
+        env:
+          DATABASE_URL: 'postgresql://fakeuser:fakepass@localhost:5432/fakedb'
+          JWT_SECRETO: 'teste-jwt-secreto'
+          JWT_EXPIRACAO: '24h'
         run: npm test
