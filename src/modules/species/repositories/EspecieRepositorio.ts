@@ -106,6 +106,23 @@ export class EspecieRepositorio {
     });
   }
 
+  async atualizarClima(
+    id: string,
+    dados: {
+      temperaturaAtual: number;
+      umidadeAtual: number;
+      descricaoClima: string;
+      climaAtualizadoEm: Date;
+    },
+  ): Promise<Especie> {
+    const especie = await prismaClient.especie.update({
+      where: { id },
+      data: dados,
+    });
+
+    return especie;
+  }
+
   async estatisticasPorCategoria(): Promise<EstatisticaCategoria[]> {
     const resultado = await prismaClient.especie.groupBy({
       by: ['categoria'],

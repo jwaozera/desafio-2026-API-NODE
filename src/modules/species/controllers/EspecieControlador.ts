@@ -7,6 +7,8 @@ import { BuscarEspecieServico } from '../services/BuscarEspecieServico';
 import { AtualizarEspecieServico } from '../services/AtualizarEspecieServico';
 import { RemoverEspecieServico } from '../services/RemoverEspecieServico';
 import { EstatisticasEspecieServico } from '../services/EstatisticasEspecieServico';
+import { ClimaServico } from '../../climate/services/ClimaServico';
+import { AtualizarClimaEspecieServico } from '../../climate/services/AtualizarClimaEspecieServico';
 import {
   criarEspecieEsquema,
   atualizarEspecieEsquema,
@@ -23,7 +25,8 @@ export class EspecieControlador {
     }
 
     const repositorio = new EspecieRepositorio();
-    const servico = new CriarEspecieServico(repositorio);
+    const climaServico = new ClimaServico();
+    const servico = new CriarEspecieServico(repositorio, climaServico);
 
     const especie = await servico.executar(dadosValidados, req.usuarioId);
 
@@ -96,6 +99,28 @@ export class EspecieControlador {
     res.status(200).json({
       status: 'sucesso',
       dados: estatisticas,
+    });
+  }
+
+  async consultarClima(req: RequestAutenticado, res: Response): Promise<void> {
+    const { id } = req.params;
+
+    const repositorio = new EspecieRepositorio();
+    const climaServico = new ClimaServico();
+    const servico = new AtualizarClimaEspecieServico(repositorio, climaServico);
+
+    const especie = await servico.executar(id);
+
+    res.status(200).json({
+      status: 'sucesso',
+      dados: {
+        id: especie.id,
+        nomeComum: especie.nomeComum,
+        temperaturaAtual: especie.temperaturaAtual,
+        umidadeAtual: especie.umidadeAtual,
+        descricaoClima: especie.descricaoClima,
+        climaAtualizadoEm: especie.climaAtualizadoEm,
+      },
     });
   }
 }
