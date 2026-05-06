@@ -13,6 +13,7 @@ import {
   criarEspecieEsquema,
   atualizarEspecieEsquema,
   listarEspeciesEsquema,
+  idParamEsquema,
 } from '../schemas/especieEsquema';
 import { AppErro } from '../../../shared/errors/AppErro';
 
@@ -51,7 +52,7 @@ export class EspecieControlador {
   }
 
   async buscarPorId(req: RequestAutenticado, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { id } = idParamEsquema.parse(req.params);
 
     const repositorio = new EspecieRepositorio();
     const servico = new BuscarEspecieServico(repositorio);
@@ -65,7 +66,7 @@ export class EspecieControlador {
   }
 
   async atualizar(req: RequestAutenticado, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { id } = idParamEsquema.parse(req.params);
     const dadosValidados = atualizarEspecieEsquema.parse(req.body);
 
     const repositorio = new EspecieRepositorio();
@@ -80,7 +81,7 @@ export class EspecieControlador {
   }
 
   async remover(req: RequestAutenticado, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { id } = idParamEsquema.parse(req.params);
 
     const repositorio = new EspecieRepositorio();
     const servico = new RemoverEspecieServico(repositorio);
@@ -103,7 +104,7 @@ export class EspecieControlador {
   }
 
   async consultarClima(req: RequestAutenticado, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { id } = idParamEsquema.parse(req.params);
 
     const repositorio = new EspecieRepositorio();
     const climaServico = new ClimaServico();

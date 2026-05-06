@@ -72,6 +72,10 @@ export const listarEspeciesEsquema = z.object({
   limite: z.coerce.number().int().min(1).max(100).default(20),
 });
 
+export const idParamEsquema = z.object({
+  id: z.string({ message: 'ID é obrigatório' }).uuid('ID deve ser um UUID válido'),
+});
+
 export type CriarEspecieDTO = z.infer<typeof criarEspecieEsquema>;
 export type AtualizarEspecieDTO = z.infer<typeof atualizarEspecieEsquema>;
 export type ListarEspeciesDTO = z.infer<typeof listarEspeciesEsquema>;
