@@ -1,120 +1,230 @@
-# 🧠 Desafio Técnico – Backend (Node.js API)
+# 🦜 SIAPESQ — API de Espécies
 
-## 🎯 Objetivo
+API REST para gerenciamento e análise de dados de espécies com integração climática automática.
 
-Desenvolver uma API REST para gerenciamento e análise de dados de espécies, simulando um cenário real de aplicações da SIAPESQ.
+## Tecnologias
 
-- **Período para execução:** 27 de abril até 7 de maio
+| Tecnologia | Versão | Uso |
+|---|---|---|
+| Node.js | 22+ | Runtime |
+| TypeScript | 6 | Tipagem estática |
+| Express | 4 | Framework HTTP |
+| PostgreSQL | 15 | Banco de dados |
+| Prisma | 7 | ORM |
+| Jest | 30 | Testes |
+| Zod | 4 | Validação de entrada |
+| JWT | — | Autenticação |
+| BCrypt | 6 | Hash de senhas |
+| Helmet | — | Headers de segurança |
 
----
+## Início Rápido
 
-## 🧠 Requisitos
+### Pré-requisitos
 
-### 🔹 Tecnologias
+- Node.js 22+
+- Docker e Docker Compose (para PostgreSQL)
 
-- Node.js  
-- JavaScript ou TypeScript (preferencialmente TypeScript)  
-- Banco de dados SQL (PostgreSQL/MySQL) ou NoSQL (MongoDB)  
+### 1. Clone e instale
 
----
+```bash
+git clone https://github.com/jwaozera/desafio-2026-API-NODE.git
+cd desafio-2026-API-NODE
+npm install
+```
 
-## 📌 Descrição do Desafio
+### 2. Configure o ambiente
 
-Você deve desenvolver uma API REST que contemple as seguintes funcionalidades:
+```bash
+cp .env.example .env
+```
 
----
+Edite o `.env` se necessário. Valores padrão funcionam com o docker-compose incluso.
 
-### 🔹 1. Cadastro de Espécies
+### 3. Suba o banco
 
-Cada espécie deve conter:
+```bash
+docker-compose up -d
+```
 
-- Nome comum  
-- Nome científico  
-- Categoria (ex: ave, peixe, planta)  
-- Localização (latitude e longitude)  
-- Data de registro  
+### 4. Rode as migrations
 
----
+```bash
+npx prisma migrate dev
+```
 
-### 🔹 2. Consulta de Dados
+### 5. Inicie o servidor
 
-Criar endpoints para:
+```bash
+npm run dev
+```
 
-- Listar todas as espécies  
-- Filtrar por categoria  
-- Buscar por nome  
-- Retornar estatísticas (ex: quantidade por categoria)  
+O servidor estará disponível em `http://localhost:3000`.
 
----
+## Variáveis de Ambiente
 
-### 🔹 3. Integração com API Externa
+| Variável | Obrigatória | Default | Descrição |
+|---|---|---|---|
+| `PORTA` | Não | `3000` | Porta do servidor |
+| `DATABASE_URL` | Sim | — | URL de conexão PostgreSQL |
+| `JWT_SECRETO` | Sim | — | Segredo para assinatura JWT |
+| `JWT_EXPIRACAO` | Não | `24h` | Tempo de expiração do token |
 
-Consumir uma API pública (ex: clima, geolocalização, etc.) e:
+## Endpoints
 
-- Associar dados externos ao registro da espécie  
+### Autenticação
 
----
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| `POST` | `/auth/registrar` | Registrar novo usuário | ❌ |
+| `POST` | `/auth/login` | Autenticar e obter token | ❌ |
 
-### 🔹 4. Autenticação
+### Espécies (todas exigem autenticação)
 
-Implementar autenticação utilizando:
+| Método | Rota | Descrição |
+|---|---|---|
+| `POST` | `/especies` | Cadastrar espécie (clima automático) |
+| `GET` | `/especies` | Listar com paginação e filtros |
+| `GET` | `/especies/:id` | Buscar por ID |
+| `PUT` | `/especies/:id` | Atualizar espécie |
+| `DELETE` | `/especies/:id` | Remover espécie |
+| `GET` | `/especies/estatisticas` | Quantidade por categoria |
+| `GET` | `/especies/:id/clima` | Atualizar clima sob demanda |
 
-- JWT  
-- Login simples (email e senha)  
+### Filtros e Paginação (GET /especies)
 
----
+| Query Param | Tipo | Default | Descrição |
+|---|---|---|---|
+| `categoria` | string | — | Filtrar por categoria |
+| `nome` | string | — | Busca por nome comum ou científico |
+| `pagina` | number | `1` | Página atual |
+| `limite` | number | `20` | Itens por página (max: 100) |
 
-### 🔹 5. Banco de Dados
+**Categorias válidas:** `ave`, `peixe`, `mamifero`, `reptil`, `anfibio`, `planta`, `inseto`, `outro`
 
-Utilizar uma das opções:
+### Exemplos
 
-- SQL (PostgreSQL ou MySQL)  
-- NoSQL (MongoDB)  
+**Registrar:**
+```bash
+curl -X POST http://localhost:3000/auth/registrar \
+  -H "Content-Type: application/json" \
+  -d '{"nome": "João", "email": "joao@email.com", "senha": "123456"}'
+```
 
----
+**Login:**
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "joao@email.com", "senha": "123456"}'
+```
 
-### 🔹 6. Testes (Diferencial)
+**Cadastrar espécie:**
+```bash
+curl -X POST http://localhost:3000/especies \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "nomeComum": "Arara-azul",
+    "nomeCientifico": "Anodorhynchus hyacinthinus",
+    "categoria": "ave",
+    "latitude": -15.78,
+    "longitude": -47.93
+  }'
+```
 
-- Testes unitários ou de integração  
+**Listar aves:**
+```bash
+curl http://localhost:3000/especies?categoria=ave&pagina=1&limite=10 \
+  -H "Authorization: Bearer <token>"
+```
 
----
+**Consultar clima:**
+```bash
+curl http://localhost:3000/especies/<id>/clima \
+  -H "Authorization: Bearer <token>"
+```
 
-## 📦 Entregáveis
+## Testes
 
-- Código no GitHub  
-- README com instruções de execução  
-- Collection do Postman ou Insomnia (opcional)  
+```bash
+# rodar todos os testes
+npm test
 
----
+# rodar em modo watch
+npm run test:watch
+```
 
-## 🧪 Critérios de Avaliação
+## Scripts
 
-| Critério                         | Peso |
-|--------------------------------|------|
-| Arquitetura e organização       | 25% |
-| Funcionalidades implementadas   | 20% |
-| Boas práticas (clean code)      | 15% |
-| Segurança (validação + auth)    | 15% |
-| Uso correto de HTTP             | 10% |
-| Integração com API externa      | 10% |
-| Testes (diferencial)            | 5%  |
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento (hot reload) |
+| `npm run build` | Compilar TypeScript |
+| `npm start` | Servidor de produção (requer build) |
+| `npm test` | Rodar testes |
+| `npm run lint` | Verificar lint (ESLint + Prettier) |
+| `npm run format` | Formatar código |
 
----
+## Estrutura do Projeto
 
-## ⚠️ Observações
+```
+src/
+├── __mocks__/              # mocks globais para testes
+├── __tests__/              # testes da app (health, setup)
+├── config/
+│   └── environment.ts      # validação de variáveis de ambiente (Zod)
+├── modules/
+│   ├── auth/               # módulo de autenticação
+│   │   ├── controllers/
+│   │   ├── repositories/
+│   │   ├── routes/
+│   │   ├── schemas/        # validação Zod
+│   │   ├── services/
+│   │   └── __tests__/
+│   ├── climate/            # módulo de integração climática
+│   │   ├── services/
+│   │   ├── types/
+│   │   └── __tests__/
+│   └── species/            # módulo de espécies
+│       ├── controllers/
+│       ├── repositories/
+│       ├── routes/
+│       ├── schemas/
+│       ├── services/
+│       └── __tests__/
+├── shared/
+│   ├── database/
+│   │   └── prismaClient.ts
+│   ├── errors/
+│   │   └── AppErro.ts
+│   └── middlewares/
+│       ├── garantirAutenticacao.ts
+│       └── handleError.ts
+├── app.ts                  # configuração do Express
+└── server.ts               # ponto de entrada
+```
 
-- O desafio **não precisa estar 100% completo** para ser avaliado  
-- O foco principal será:
-  - Organização do código  
-  - Raciocínio técnico  
-  - Boas práticas  
-- Diferenciais são opcionais, mas valorizados  
+## Segurança
 
----
+- **Helmet** — headers HTTP seguros
+- **Rate Limiting** — 100 req/15min por IP
+- **BCrypt** — hash de senhas (10 salt rounds)
+- **JWT** — autenticação stateless
+- **Zod** — validação rigorosa de entrada
+- **Body Limit** — payload máximo de 10kb
+- **Mensagens genéricas** — login não revela se email existe
 
-## 👤 Contato
+## Integração Climática
 
-Em caso de dúvidas, entre em contato:
+A API consome a [Open-Meteo](https://open-meteo.com/) para enriquecer espécies com dados climáticos:
 
-- **Theodor:** (55) 53 99146-9520 (WhatsApp)  
-- **Email:** siapesq@gmail.com  
+- **Na criação:** clima é buscado automaticamente. Se a API estiver fora, a espécie é criada sem dados climáticos (graceful degradation)
+- **Sob demanda:** `GET /especies/:id/clima` atualiza e retorna os dados climáticos. Retorna 503 se a API estiver indisponível
+
+Dados retornados: temperatura (°C), umidade (%), descrição do clima em português (baseada nos códigos WMO).
+
+## CI/CD
+
+Pipeline GitHub Actions roda em push/PR para `main`:
+- **Lint** — ESLint + Prettier
+- **Testes** — Jest com mocks (sem banco)
+- **Node 22 e 24**
