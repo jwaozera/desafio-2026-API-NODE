@@ -32,6 +32,7 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 *.md
+!README.md
 
 # Prisma generated client
 src/generated/
