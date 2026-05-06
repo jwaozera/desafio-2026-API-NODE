@@ -11,6 +11,7 @@ especieRotas.use(garantirAutenticacao);
 especieRotas.post('/', (req, res) => controlador.criar(req, res));
 especieRotas.get('/estatisticas', (req, res) => controlador.estatisticas(req, res));
 especieRotas.get('/', (req, res) => controlador.listar(req, res));
+especieRotas.get('/:id/clima', (req, res) => controlador.consultarClima(req, res));
 especieRotas.get('/:id', (req, res) => controlador.buscarPorId(req, res));
 especieRotas.put('/:id', (req, res) => controlador.atualizar(req, res));
 especieRotas.delete('/:id', (req, res) => controlador.remover(req, res));
