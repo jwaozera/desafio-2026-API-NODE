@@ -1,0 +1,271 @@
+{
+  "info": {
+    "name": "SIAPESQ API",
+    "description": "API REST para gerenciamento de espécies com integração climática.\n\n## Como usar\n1. Execute \"Registrar\" para criar um usuário\n2. Execute \"Login\" para obter o token\n3. O token é salvo automaticamente na variável {{token}}\n4. Use os endpoints de Espécies normalmente",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "especieId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('token', '');",
+                  "  console.log('Usuário registrado! Execute Login para obter o token.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João Pesquisador\",\n  \"email\": \"joao@siapesq.com\",\n  \"senha\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "registrar"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.dados.token);",
+                  "  console.log('Token salvo automaticamente!');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao@siapesq.com\",\n  \"senha\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Espécies",
+      "item": [
+        {
+          "name": "Cadastrar Espécie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('especieId', json.dados.id);",
+                  "  console.log('ID da espécie salvo: ' + json.dados.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeComum\": \"Arara-azul\",\n  \"nomeCientifico\": \"Anodorhynchus hyacinthinus\",\n  \"categoria\": \"ave\",\n  \"latitude\": -15.78,\n  \"longitude\": -47.93\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/especies",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies"]
+            }
+          }
+        },
+        {
+          "name": "Listar Espécies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especies?pagina=1&limite=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies"],
+              "query": [
+                { "key": "pagina", "value": "1" },
+                { "key": "limite", "value": "20" },
+                { "key": "categoria", "value": "ave", "disabled": true },
+                { "key": "nome", "value": "arara", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especies/{{especieId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies", "{{especieId}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Espécie",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeComum\": \"Arara-azul-grande\",\n  \"categoria\": \"ave\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/especies/{{especieId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies", "{{especieId}}"]
+            }
+          }
+        },
+        {
+          "name": "Remover Espécie",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especies/{{especieId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies", "{{especieId}}"]
+            }
+          }
+        },
+        {
+          "name": "Estatísticas por Categoria",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especies/estatisticas",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies", "estatisticas"]
+            }
+          }
+        },
+        {
+          "name": "Consultar Clima",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especies/{{especieId}}/clima",
+              "host": ["{{baseUrl}}"],
+              "path": ["especies", "{{especieId}}", "clima"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

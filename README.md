@@ -143,6 +143,15 @@ curl http://localhost:3000/especies/<id>/clima \
   -H "Authorization: Bearer <token>"
 ```
 
+## Postman / Insomnia
+
+Importe a collection pronta em [`docs/SIAPESQ.postman_collection.json`](docs/SIAPESQ.postman_collection.json).
+
+- Token é salvo automaticamente após o Login
+- ID da espécie é salvo automaticamente após o Cadastro
+- Filtros de listagem pré-configurados (habilite/desabilite na aba Params)
+- Compatível com Postman e Insomnia
+
 ## Testes
 
 ```bash
